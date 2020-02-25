@@ -11,6 +11,10 @@ requests = "==2.22"
 beautifulsoup4 = "*"
 bs4 = "*"
 pandas = "*"
+lxml = "*"
+pymongo = {extras = ["srv"],version = "*"}
+mongoengine = "*"
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"

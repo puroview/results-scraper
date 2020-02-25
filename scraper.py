@@ -1,11 +1,11 @@
 #! /usr/bin/python3
 
 from bs4 import BeautifulSoup
-from promotions import companies
 from datetime import datetime, timedelta
-
+from db import Connector
 import requests
 import json
+import logging
 
 
 class Promotion:
@@ -23,7 +23,7 @@ class Promotion:
             
 
     def get_events(self):
-        self.results_list = []
+        results_list = []
 
         for date in self.date_list:
             
@@ -47,6 +47,7 @@ class Promotion:
                     show_name = show_name.text
                     show_dict["title"] = show_name.strip()
                     show_dict["date"] = date
+                    print('Found Show - {}'.format(show_dict['title']))
 
                     results = show.find_all('span', {'class': 'MatchResults'})
                     match_list = []
@@ -55,25 +56,28 @@ class Promotion:
                     
                     show_dict["results"] = match_list
                     
-                    self.results_list.append(show_dict)
+                    results_list.append(show_dict)
             else:
                 pass
-        self.clean_titles()
-        return self.results_list
+        self.clean_titles(results_list)
+        self.clean_results(results_list)
+        return results_list
 
-    def clean_titles(self):
-        for show in self.results_list:
+    def clean_titles(self, results_list):
+        for show in results_list:
             show["location"] = show["title"].split('@ ')[1]
             show["title"] = show["title"].replace("- Event @", "@")
             show["title"] = show["title"].replace("- TV-Show @", "@")
             show["title"] = show["title"].split(') ', 1)[1].split('@')[0]
             show["title"] = show["title"].replace("- Tag ", "- Day ")
 
-            
+    def clean_results(self, results_list):
+        for show in results_list:
+            for i in range(len(show['results'])):
+                show['results'][i] = show['results'][i].replace("TITLE CHANGE !!!", "<b>TITLE CHANGE</b>")
 
 
-
-def get_promotions():
+def update_promotions():
     promotions_page = "https://www.cagematch.net/?id=8&view=promotions&region=&status=aktiv&name=&location=japan"
     soup = BeautifulSoup((requests.get(promotions_page)).text, "lxml")
     table = soup.find('div', {'class': 'TableContents'})
@@ -85,24 +89,32 @@ def get_promotions():
         prom_dict["cagematch_id"] = prom.find('a').get('href')
         if prom_dict['name'] == "Wrestling In Japan - Freelance Shows":
             prom_dict['name'] = "Others"
-        promotions.append(prom_dict)
+        if prom_dict["name"] != "Name":
+            promotions.append(prom_dict)
 
-    return promotions
-
-if __name__ == "__main__":
-    promotions = get_promotions()
+    db = Connector('promotions')
 
     for prom in promotions:
-        prom = Promotion(**prom)
+        db.update({"name": prom["name"]}, prom)
+
+def update_events():
+    db_proms = Connector('promotions')
+    db_results = Connector('results')
         
+    for prom in db_proms.find({}, {"_id": 0}):
+        prom = Promotion(**prom)
         events = prom.get_events()
+
         if events:
-            print(prom.name + " Results:", '\n')
             for event in events:
-                print("Event: " + event["title"])
-                print("Date: " + event["date"])
-                print("Location: " + event["location"])
-                results = event["results"]
-                for result in results:
-                    print(result)
-                print("\n")
+                event["promotion"] = prom.name
+                print('Adding Show %s' % event["title"])
+                inserted_id = db_results.update({"title": event["title"], "date": event["date"]}, event)
+                print(inserted_id)
+
+
+
+if __name__ == "__main__":
+    
+    update_promotions()
+    update_events()

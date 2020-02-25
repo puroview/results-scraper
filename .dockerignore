@@ -1,0 +1,11 @@
+# Directories
+.vscode*
+__pycache*
+
+# Version Control
+.gitignore
+
+# Ignored Files
+*html
+logger.py
+newsletter.py
