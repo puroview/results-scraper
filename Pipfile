@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+autopep8 = "*"
 
 [packages]
 requests = "==2.22"
@@ -15,6 +16,10 @@ lxml = "*"
 pymongo = {extras = ["srv"],version = "*"}
 mongoengine = "*"
 jinja2 = "*"
+google-cloud = "*"
+google-cloud-python = "*"
+google-cloud-storage = "*"
+google-auth = "*"
 
 [requires]
 python_version = "3.7"

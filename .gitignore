@@ -1,2 +1,5 @@
 .vscode/
+*pycache*
 Pipfile.lock
+puroview*.html
+puroview*.json

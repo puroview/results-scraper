@@ -9,7 +9,7 @@ COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 ## Copy in files
-COPY ["scraper.py", "db.py", "notifier.py", "./"]
+COPY ["newsletter.py", "db.py", "gcloud.py", "notifier.py", "newsletter_temp.html", "./"]
 
 ## Run scraper
-ENTRYPOINT [ "python", "./scraper.py"]
+ENTRYPOINT [ "python", "./newsletter.py"]

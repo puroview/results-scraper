@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from db import Connector
 import requests
 import json
-import logging
+import notifier
 
 
 class Promotion:
@@ -59,11 +59,13 @@ class Promotion:
                     results_list.append(show_dict)
             else:
                 pass
-        self.clean_titles(results_list)
-        self.clean_results(results_list)
-        return results_list
+        if results_list:
+            self.clean_titles(results_list)
+            self.clean_results(results_list)
+            return results_list
 
     def clean_titles(self, results_list):
+        print("Formatting Show Titles")
         for show in results_list:
             show["location"] = show["title"].split('@ ')[1]
             show["title"] = show["title"].replace("- Event @", "@")
@@ -72,12 +74,14 @@ class Promotion:
             show["title"] = show["title"].replace("- Tag ", "- Day ")
 
     def clean_results(self, results_list):
+        print("Formatting Match Results")
         for show in results_list:
             for i in range(len(show['results'])):
                 show['results'][i] = show['results'][i].replace("TITLE CHANGE !!!", "<b>TITLE CHANGE</b>")
 
 
 def update_promotions():
+    print("Updating Promotion List")
     promotions_page = "https://www.cagematch.net/?id=8&view=promotions&region=&status=aktiv&name=&location=japan"
     soup = BeautifulSoup((requests.get(promotions_page)).text, "lxml")
     table = soup.find('div', {'class': 'TableContents'})
@@ -95,26 +99,42 @@ def update_promotions():
     db = Connector('promotions')
 
     for prom in promotions:
-        db.update({"name": prom["name"]}, prom)
+        inserted_id = db.update({"name": prom["name"]}, prom)
+        if inserted_id:
+            print("Added New Promtion \"{}\" to DB".format(prom["name"].strip()))
 
 def update_events():
     db_proms = Connector('promotions')
     db_results = Connector('results')
-        
+
+    updated_shows = []
+
     for prom in db_proms.find({}, {"_id": 0}):
+        print("Finding Events for {}".format(prom["name"]))
         prom = Promotion(**prom)
         events = prom.get_events()
 
         if events:
             for event in events:
                 event["promotion"] = prom.name
-                print('Adding Show %s' % event["title"])
                 inserted_id = db_results.update({"title": event["title"], "date": event["date"]}, event)
-                print(inserted_id)
-
+                if inserted_id:
+                    print('Adding Show {}'.format(event["title"]))
+                    print('Inserted ID: ' + str(inserted_id))
+                    updated_shows.append(event["promotion"] + " - " + event["title"])
+                else:
+                    print('Show "{}" already in DB'.format(event["title"].strip()))
+        
+    return updated_shows
 
 
 if __name__ == "__main__":
     
     update_promotions()
-    update_events()
+    updated_shows = update_events()
+    updated_shows = '\n'.join(updated_shows)
+    notifier = notifier.Notifier()
+    if updated_shows:
+        notifier.pushover('Scraper complete, added shows:\n' + updated_shows)
+    else:
+        notifier.pushover('Scraper complete, no shows added.')

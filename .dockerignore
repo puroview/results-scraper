@@ -6,6 +6,6 @@ __pycache*
 .gitignore
 
 # Ignored Files
-*html
+
 logger.py
-newsletter.py
+puroview-2795b819fd67.json
