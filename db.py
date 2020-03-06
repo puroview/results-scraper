@@ -22,3 +22,7 @@ class Connector:
     def update(self, update_filter, update_data):
         result = self.table.update_one(update_filter, {"$set": update_data}, upsert=True)
         return result.upserted_id
+
+    def distinct(self, find_data):
+        result = self.table.distinct(find_data)
+        return result

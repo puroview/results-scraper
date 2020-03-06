@@ -4,8 +4,7 @@ __pycache*
 
 # Version Control
 .gitignore
+Pipfile*
 
 # Ignored Files
 
-logger.py
-puroview-2795b819fd67.json

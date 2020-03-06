@@ -14,12 +14,6 @@ bs4 = "*"
 pandas = "*"
 lxml = "*"
 pymongo = {extras = ["srv"],version = "*"}
-mongoengine = "*"
-jinja2 = "*"
-google-cloud = "*"
-google-cloud-python = "*"
-google-cloud-storage = "*"
-google-auth = "*"
 
 [requires]
 python_version = "3.7"
