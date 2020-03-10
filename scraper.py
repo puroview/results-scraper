@@ -1,10 +1,9 @@
-#! /usr/bin/python3
-
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
-from db import Connector
 import requests
 import json
+
+from db import Connector
 import notifier
 
 
@@ -14,18 +13,12 @@ class Promotion:
         self.name = kwargs['name']
         self.cagematch_id = kwargs['cagematch_id']
         self.events_page = "https://www.cagematch.net/" + self.cagematch_id + "&page=8"
-        
-        dates = [datetime.today() - timedelta(days=x) for x in range(7)]
-        self.date_list = []
-        for i in reversed(dates):
-            date = i.date().strftime('%d.%m.%Y')
-            self.date_list.append(date)
-            
+                
 
     def get_events(self):
         results_list = []
 
-        for date in self.date_list:
+        for date in date_list:
             
             day = date.split(".")[0]
             month = date.split(".")[1]
@@ -131,6 +124,13 @@ def update_events():
 if __name__ == "__main__":
     
     update_promotions()
+
+    dates = [datetime.today() - timedelta(days=x) for x in range(7)]
+    date_list = []
+    for i in reversed(dates):
+        date = i.date().strftime('%d.%m.%Y')
+        date_list.append(date)
+
     updated_shows = update_events()
     updated_shows = '\n'.join(updated_shows)
     notifier = notifier.Notifier()
