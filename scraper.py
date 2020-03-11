@@ -65,6 +65,7 @@ class Promotion:
             show["title"] = show["title"].replace("- TV-Show @", "@")
             show["title"] = show["title"].split(') ', 1)[1].split('@')[0]
             show["title"] = show["title"].replace("- Tag ", "- Day ")
+            show["title"] = show["title"].replace("Runde ", "Round ")
 
     def clean_results(self, results_list):
         print("Formatting Match Results")
