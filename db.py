@@ -4,7 +4,7 @@ import os
 class Connector:
 
     def __init__(self, table):
-        self.client = MongoClient("mongodb+srv://" + os.environ['DBUSER'] + ":" + os.environ['DBPASS'] + "@mongodb-puroview-1-cmspo.gcp.mongodb.net/test?retryWrites=true&w=majority")
+        self.client = MongoClient("mongodb+srv://" + os.environ['DBUSER'] + ":" + os.environ['DBPASS'] + "@" + os.environ['DBURL'] + "/test?retryWrites=true&w=majority")
         self.db = self.client.puroview
         self.table = self.db[table]
 
