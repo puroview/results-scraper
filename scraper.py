@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import requests
 import json
+import string
 
 from db import Connector
 import notifier
@@ -87,6 +88,8 @@ def update_promotions():
         prom_dict["cagematch_id"] = prom.find('a').get('href')
         if prom_dict['name'] == "Wrestling In Japan - Freelance Shows":
             prom_dict['name'] = "Others"
+        prom_dict["short_name"] = prom_dict["name"].translate(str.maketrans('', '', string.punctuation))
+        prom_dict["short_name"] = prom_dict["short_name"].replace(" ", "")
         if prom_dict["name"] != "Name":
             promotions.append(prom_dict)
 
