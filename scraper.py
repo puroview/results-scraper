@@ -27,7 +27,7 @@ class Promotion:
 
             page = self.events_page + "&name=&vDay={}&vMonth={}&vYear={}&showtype=&location=&arena=&region=".format(day, month, year)
 
-            events = requests.get(page)
+            events = requests.get(page, headers={'Accept-Encoding': 'identity'})
             soup = BeautifulSoup(events.text, "lxml")
             
             events_table = soup.find('div', {'class': 'TableContents'})
@@ -78,7 +78,7 @@ class Promotion:
 def update_promotions():
     print("Updating Promotion List")
     promotions_page = "https://www.cagematch.net/?id=8&view=promotions&region=&status=aktiv&name=&location=japan"
-    soup = BeautifulSoup((requests.get(promotions_page)).text, "lxml")
+    soup = BeautifulSoup((requests.get(promotions_page, headers={'Accept-Encoding': 'identity'})).text, "lxml")
     table = soup.find('div', {'class': 'TableContents'})
     
     promotions = []
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     
     update_promotions()
 
-    dates = [datetime.today() - timedelta(days=x) for x in range(7)]
+    dates = [datetime.today() - timedelta(days=x) for x in range(9)]
     date_list = []
     for i in reversed(dates):
         date = i.date().strftime('%d.%m.%Y')
