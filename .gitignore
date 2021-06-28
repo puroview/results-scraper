@@ -1,5 +1,17 @@
-.vscode/
-*pycache*
-Pipfile.lock
+# Directories
+.vscode*
+__pycache*
+
+# Version Control
+.gitignore
+.dockerignore
+Pipfile*
+
+# Ignored Files
+*json
 puroview*.html
-puroview*.json
+.env
+env.list
+*.log
+*.txt
+Pipfile.lock
