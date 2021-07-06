@@ -1,5 +1,6 @@
-from pymongo import MongoClient
+# External Imports
 import os
+from pymongo import MongoClient
 
 class Connector:
 
