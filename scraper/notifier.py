@@ -1,41 +1,66 @@
-import datetime
+# External Imports
+import logging
 import http.client
 import os
-import smtplib
-import time
 import urllib
-from email.message import EmailMessage
 
+## Classes
+# Pushover Class
+class Pushover():
+    """
+    A class for a pushover client session, with the ability to push notification messages
 
-class Notifier():
+    Attributes
+    ----------
+    token : str
+        Pushover API token
+
+    user : str
+        Pushover API user
+
+    Methods
+    -------
+    push_message()
+        Push out a notification to the Pushover client
+    """
     def __init__(self):
-        pass
-        #self.emailkeys = emailkeys
-        #self.pushkeys = pushkeys
+        logging.info("Creating Pushover notifier")
+        # Get Pushover API credentials from env variables
+        logging.info("Grabbing Pushover credentials")
 
-    def email(self):
-        emailBody = EmailMessage()
-        with open(self.wfile_name, 'r') as wf:
-            emailBody.set_content(wf.read())
-            wf.close()
-        emailBody['Subject'] = "Winning {} Postcodes for {}".format(
-            self.draw.capitalize(), datetime.date.today())
+        self.token = os.environ["PUSHOVER_TOKEN"]
+        self.user = os.environ["PUSHOVER_USER"]
 
-        smtpObj = smtplib.SMTP(self.emailkeys["srv"], self.emailkeys["port"])
-        smtpObj.ehlo()
-        smtpObj.starttls()
-        smtpObj.login(self.emailkeys["login"], self.emailkeys["password"])
-        smtpObj.sendmail(
-            self.emailkeys["fromaddr"], self.emailkeys["toaddr"], emailBody.as_string())
-        smtpObj.quit()
+        logging.debug(f"Pushover Token: ****{self.token[4:]}")
+        logging.debug(f"Pushover User: ****{self.user[4:]}")
 
-    def pushover(self, message):
+        logging.info("Finished grabbing Pushover credentials")
+
+    def push_message(self, message):
+        """
+        Push out a notification to the Pushover client
+        
+        Parameters
+        ----------
+        message : str
+            The contents of the message to be pushed, as a string
+        """
+        logging.info("Creating Pushover message")
+
+        # Connect to Pushover API endpoint
         conn = http.client.HTTPSConnection("api.pushover.net:443")
+
+        # Send Pushover message request
         conn.request("POST", "/1/messages.json",
                      urllib.parse.urlencode({
-                         "token": "a313kfvi8omf12fc1r1xsj9u5qxij5",
-                         "user": "VP9MGj3hhrqkOBieKVfB8cKNexboMk",
+                         "token": self.token,
+                         "user": self.user,
                          "message": (message)
                          }),
                      {"Content-type": "application/x-www-form-urlencoded"})
+
+        logging.debug(f"Pushover message: {message}")
+        
+        # Send the Pushover notification
+        logging.info("Sending Pushover notification")
         conn.getresponse()
