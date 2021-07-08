@@ -31,8 +31,8 @@ class Pushover():
         self.token = os.environ["PUSHOVER_TOKEN"]
         self.user = os.environ["PUSHOVER_USER"]
 
-        logging.debug(f"Pushover Token: ****{self.token[4:]}")
-        logging.debug(f"Pushover User: ****{self.user[4:]}")
+        logging.debug(f"Pushover Token: ****{self.token[:4]}")
+        logging.debug(f"Pushover User: ****{self.user[:4]}")
 
         logging.info("Finished grabbing Pushover credentials")
 

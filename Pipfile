@@ -9,11 +9,10 @@ autopep8 = "*"
 
 [packages]
 requests = "==2.22"
-beautifulsoup4 = "*"
-bs4 = "*"
-pandas = "*"
-lxml = "*"
-pymongo = {extras = ["srv"],version = "*"}
+bs4 = "0.0.1"
+pandas = "1.2.4"
+lxml = "4.6.3"
+pymongo = {extras = ["srv"],version = "3.11.4"}
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
