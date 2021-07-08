@@ -47,7 +47,6 @@ class Promotion:
         self.events_page = "https://www.cagematch.net/" + self.cagematch_id + "&page=8"
         logging.debug(f"events_page: {self.events_page}")
                 
-
     def get_events(self, date_list):
         """Scrape the results for the promotion, for the dates provided
 
@@ -149,6 +148,7 @@ class Promotion:
                 show['results'][i] = show['results'][i].replace("TITLE CHANGE !!!", "<b>TITLE CHANGE</b>")
                 logging.info(f"Finished formatting match result {show['results'][i]}")
 
+
 class ResultsScraper:
     """
     A class for the results scraper, with methods for retrieving webscraped data and saving to the database
@@ -161,7 +161,6 @@ class ResultsScraper:
     update_events()
         For each promotion in the database, search for new results and add to DB
     """
-
     def __init__(self):
         logging.info("Building ResultsScraper object")
 
