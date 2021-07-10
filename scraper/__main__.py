@@ -1,7 +1,9 @@
 # External imports
+import os
 import logging
 import argparse 
 from datetime import datetime, timedelta
+from mongoengine import connect, errors
 
 # Internal Imports
 from notifier import Pushover
@@ -40,6 +42,10 @@ group.add_argument("--schedule", action="store_true", help="Daily schedule scrap
 # Parse arguments
 args = parser.parse_args()
 
+# Establish connection to the mongodb cluster
+# http://docs.mongoengine.org/apireference.html?highlight=connect#mongoengine.connect
+connect(host=os.environ['DBURL'])
+
 # Run script based on provided arguments
 # Results scraper
 if args.results:
@@ -48,7 +54,7 @@ if args.results:
     #Instantiate an instance of the ResultsScraper class
     scraper = ResultsScraper()
 
-    # Run the update promotions method
+    # Update the list of promotions stored in the DB
     scraper.update_promotions()
 
     # Build a list of the dates for the last 7 days
@@ -75,4 +81,6 @@ if args.schedule:
     scraper = ScheduleScraper()
 
     # Scrape scheduled shows and add to the database
-    scraper.update_db()
+    show_list = scraper.get_today_schedule()
+    show_list = scraper.clean_schedule(show_list)
+    scraper.update_db(show_list)

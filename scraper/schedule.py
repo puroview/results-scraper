@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from datetime import date
 
 # Internal Imports
-from db import Connector
+from models import Schedule
 
 
 class ScheduleScraper:
@@ -50,7 +50,7 @@ class ScheduleScraper:
 
         logging.info("Setting today's date")
         self.today = date.today().strftime('%Y-%m-%d')
-        logging.debug(f"Date: {self.today}")
+        logging.info(f"Date: {self.today}")
 
     def get_today_schedule(self):
         """
@@ -73,28 +73,58 @@ class ScheduleScraper:
         show_list = []
 
         logging.info("Finding shows in today's schedule")
+
         for show in shows:
             show_info = show.find_next("li").find("a")
+
             logging.debug(f"show_info: {show_info}")
+
             show_text = [text for text in show_info.stripped_strings]
             logging.debug(f"show_text: {show_text}")
-            show_dict = {
-                "promotion": show.get_text(),
-                "link": show_info['href'],
-                "time": show_text[0].split()[0],
-                "location": show_text[0].split()[1],
-                "venue": show_text[1]
-            }
+            
+            show_dict = {}
+
+            try:
+                show_dict['promotion'] = show.get_text()
+            except Exception as e:
+                logging.warning(e)
+            
+            try:
+                show_dict['link'] = show_info['href']
+            except Exception as e:
+                logging.warning(f"No link found for {show_dict['promotion']}")
+                logging.error(e)
+
+            try:
+                show_dict['time'] = show_text[0].split()[0]
+            except IndexError as e:
+                logging.warning(f"No time found for {show_dict['promotion']}")
+                logging.error(e)
+
+            try:
+                show_dict['location'] = show_text[0].split()[1]
+            except IndexError as e:
+                logging.warning(f"No location found for {show_dict['promotion']}")
+                logging.error(e)
+
+            try:
+                show_dict['venue'] = show_text[1]
+            except IndexError as e:
+                logging.warning(f"No venue found for {show_dict['promotion']}")
+                logging.error(e)
+
+            show_dict['date'] = self.today
+
             logging.debug(f"show_dict: {show_dict}")
 
-            logging.info(f"Found show: {show_dict['promotion']}, {show_dict['time']}, {show_dict['location']}, {show_dict['venue']}")
+            logging.info(f"Found show: {show_dict['promotion']}, {show_dict['time']}")
             
             logging.debug("Adding show to show_list")
             show_list.append(show_dict)
         
         return show_list
 
-    def clean_schedule(self):
+    def clean_schedule(self, show_list):
         """
         Clean up and standardise the format of text in the schedule data
         
@@ -102,37 +132,53 @@ class ScheduleScraper:
         -------
         show_list
             List of shows with formatted and standardised text
-        """
-        logging.info("Retrieving today's scheduled shows")
-        show_list = self.get_today_schedule()
-        
+        """        
         logging.info("Cleaning up formatting of show text")
         for show in show_list:
             if show["location"] == "webcast":
                 logging.debug(f"Replacing \"webcast\" with \"Live Stream\" for show {show['promotion']} {show['time']}")
                 show["location"] = "Live Stream"
 
+            if show["promotion"] == "Tokyo Womans":
+                show["promotion"] = "Tokyo Joshi Pro"
+
+            if show["promotion"] == "2AW(KDOJO)":
+                show["promotion"] = "2AW"
+
+            if show["promotion"] == "Michinoku":
+                show["promotion"] = "Michinoku Pro"
+
+            if show["promotion"] == "New Japan":
+                show["promotion"] = "New Japan Pro Wrestling"
+
             logging.debug(f"Setting title case on promotion name for show {show['promotion']} {show['time']}")
-            show["promotion"] = show["promotion"].title()
+            if "promotion" in show.keys() and not show['promotion'].isupper():
+                show["promotion"] = show["promotion"].title()
+            
+            # Title case location and venue, but ignore all caps words, ie Shinjuku FACE
             logging.debug(f"Setting title case on location name for show {show['promotion']} {show['time']}")
-            show["location"] = show["location"].title()
+            if "location" in show.keys():
+                show["location"] = ' '.join([word.title() if word.islower() else word for word in show["location"].split()])
             logging.debug(f"Setting title case on venue name for show {show['promotion']} {show['time']}")
-            show["venue"] = show["venue"].title()
+            if "venue" in show.keys():
+                show["venue"] = ' '.join([word.title() if word.islower() else word for word in show["venue"].split()])
 
         return show_list
 
-    def update_db(self):
+    def update_db(self, show_list):
         """
         Insert the found scheduled shows into the database
-        """
-        logging.info("Connecting to db collection \"schedule\"")
-        db = Connector('schedule')
-        
-        show_list = self.clean_schedule()
+        """   
         logging.debug(f"show_list: {show_list}")
         
         for show in show_list:
-            logging.info(f"Inserting/updating db entry for show {show['promotion']} {show['time']}")
-            inserted_id = db.update({"date": self.today, "promotion": show["promotion"], "time": show["time"]} ,show)
-            logging.debug(f"inserted_id: {inserted_id}")
+            if not Schedule.objects(promotion=show['promotion'], date=show['date'], time=show['time']):
+                db_show = Schedule(**show).save()
+                logging.info(f"Saved document ID {db_show.id} for  {show['promotion']}, {show['time']}")
+            else:
+                update = Schedule.objects(promotion=show['promotion'], date=show['date'], time=show['time']).update(**show, full_result=True)
+                if update.modified_count > 0:
+                    logging.info(f"Updated DB entry for {show['promotion']}, {show['time']}")
+                else:
+                    logging.info(f"DB entry exists for {show['promotion']}, {show['time']}")
 

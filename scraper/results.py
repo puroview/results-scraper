@@ -6,10 +6,11 @@ from bs4 import BeautifulSoup
 
 # Internal Imports
 from db import Connector
+from models import Result, Promotion
 
 ## Classes
 # Promotion class
-class Promotion:
+class Promotion(Promotion):
     """
     A class for promotions, with methods to find results for a given list of dates, and format the text in the results
     
@@ -167,11 +168,6 @@ class ResultsScraper:
         logging.info("Setting URL of promotions page")
         self.promotions_page = "https://www.cagematch.net/?id=8&view=promotions&region=&status=aktiv&name=&location=japan"
         logging.debug(f"Promotions page URL: {self.promotions_page}")
-
-        logging.info("Connecting to promotions database")
-        self.db_promotions = Connector('promotions')
-        logging.info("Connecting to results database")
-        self.db_results = Connector('results')
 
     def update_promotions(self):
         """
