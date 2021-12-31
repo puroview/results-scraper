@@ -52,7 +52,11 @@ class ScheduleScraper:
 
         # Build a string of today's date for finding the relevant elements
         logging.info("Setting today's date")
+        # Uncomment to set a specific day, eg for testing
+        #self.today = "2021-12-31"
+        # Otherwise use below to pull today's date
         self.today = date.today().strftime('%Y-%m-%d')
+        
         logging.info(f"Date: {self.today}")
 
     def get_today_schedule(self):
@@ -102,6 +106,7 @@ class ScheduleScraper:
             # This should always exist at the mimimum, but catch errors to prevent crashes
             try:
                 show_dict['promotion'] = show.get_text()
+                logging.info(f"Promotion name: {show_dict['promotion']}")
             except Exception as e:
                 logging.error(e)
             
@@ -109,6 +114,7 @@ class ScheduleScraper:
             # Catch errors in case there is no link (puwota removes links after the date has passed, so this probably depends on timing)
             try:
                 show_dict['link'] = show_info['href']
+                logging.info(f"Show link: {show_dict['link']}")
             except Exception as e:
                 logging.warning(f"No link found for {show_dict['promotion']}")
                 logging.error(e)
@@ -116,6 +122,7 @@ class ScheduleScraper:
             # Set the show time by pulling it from the text and catch errors if it doesn't exist
             try:
                 show_dict['time'] = show_text[0].split()[0]
+                logging.info(f"Show time: {show_dict['time']}")
             except IndexError as e:
                 logging.warning(f"No time found for {show_dict['promotion']}")
                 logging.error(e)
@@ -201,6 +208,12 @@ class ScheduleScraper:
             if "venue" in show.keys():
                 show["venue"] = ' '.join([word.title() if word.islower() else word for word in show["venue"].split()])
 
+                # ChocoPro shows are formatted differently on puwota, we standardise it here
+                if show["venue"] == "ChocoPro":
+                    show["promotion"] = "ChocoPro"
+                    show["location"] = "Tokyo"
+                    show["venue"] = "Ichigaya Chocolate Square"
+
         logging.debug(f"Cleaned show_list: {show_list}")
         return show_list
 
@@ -212,7 +225,7 @@ class ScheduleScraper:
         ----------
         show_list
             List of shows with formatted and standardised text
-        """   
+        """
         logging.info("Adding shows to database")
         
         # For each show in the list, add it to the DB

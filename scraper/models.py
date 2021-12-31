@@ -15,10 +15,11 @@ class Newsletter(Document):
 
     meta = {
         "indexes": ["url"],
-        "ordering": ["url"]
+        "ordering": ["url"],
+        "collection": "newsletters"
     }
 
-class Promotion(Document):
+class Promotions(Document):
     name = StringField()
     cagematch_id = StringField(required=True, unique=True)
     short_name = StringField()
@@ -39,7 +40,8 @@ class Result(Document):
     meta = {
         "indexes": ["date", "title", "promotion"],
         "ordering": ["-date"],
-        "allow_inheritance": True
+        "allow_inheritance": True,
+        "collection": "results"
     }
 
 class Schedule(DynamicDocument):
@@ -52,6 +54,7 @@ class Schedule(DynamicDocument):
 
     meta = {
         "allow_inheritance": True
+        
     }
 
 class User(Document):
@@ -61,5 +64,6 @@ class User(Document):
     confirmed_on = DateTimeField()
 
     meta = {
-        "indexes": ["email"]
+        "indexes": ["email"],
+        "collection": "users"
     }

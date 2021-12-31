@@ -25,6 +25,7 @@ class Pushover():
     """
     def __init__(self):
         logging.info("Creating Pushover notifier")
+        
         # Get Pushover API credentials from env variables
         logging.info("Grabbing Pushover credentials")
 
