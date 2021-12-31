@@ -195,6 +195,12 @@ class ScheduleScraper:
             if show["promotion"] == "New Japan":
                 show["promotion"] = "New Japan Pro Wrestling"
 
+            if show["promotion"] == "Ryukyu":
+                show["promotion"] = "Ryukyu Dragon Pro Wrestling"
+
+            if show["promotion"] == "Shinshu":
+                show["promotion"] = "Shinshu Pro Wrestling Federation"
+
             # Set title case for the promotion name, unless it is already all caps (ie DDT)
             logging.debug(f"Setting title case on promotion name for show {show['promotion']} {show['time']}")
             if "promotion" in show.keys() and not show['promotion'].isupper():

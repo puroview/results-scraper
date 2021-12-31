@@ -3,7 +3,7 @@ import os
 import logging
 import argparse 
 from datetime import datetime, timedelta
-from mongoengine import connect, errors
+from mongoengine import connect
 
 # Internal Imports
 from notifier import Pushover
