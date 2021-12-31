@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+
+  scraper:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file: .env
+    depends_on:
+      - mongo
+    command: --results
+
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - "/home/david/dev/staging/puroview/data/db:/data/db"
+    ports:
+      - 27017:27017

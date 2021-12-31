@@ -15,4 +15,3 @@ COPY . .
 
 ## Run scraper
 ENTRYPOINT ["pipenv", "run", "python3", "scraper"]
-CMD ["--results"]

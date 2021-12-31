@@ -12,7 +12,8 @@ requests = "==2.22"
 bs4 = "0.0.1"
 pandas = "1.2.4"
 lxml = "4.6.3"
-pymongo = {extras = ["srv"],version = "3.11.4"}
+pymongo = {extras = ["srv"],version = "3.4"}
+mongoengine = "==0.23.1"
 
 [requires]
 python_version = "3.8"
