@@ -5,7 +5,7 @@ import string
 from bs4 import BeautifulSoup
 
 # Internal Imports
-from models import Result, Promotions
+from models import Results, Promotions
 
 ## Classes
 # ResultsScraper Class
@@ -49,6 +49,8 @@ class ResultsScraper:
         # Build updated_shows list used later for notifications
         updated_shows = []
 
+        logging.debug(Promotions.objects())
+
         # Get list of promotions from database
         for promotion in Promotions.objects():
             logging.info(f"Finding Events for {promotion.name}")
@@ -66,14 +68,14 @@ class ResultsScraper:
                     event['promotion'] = promotion.name
 
                     # Check whether the show already exists, based on the event name and date
-                    if not Result.objects(title=event['title'], date=event['date']):
+                    if not Results.objects(title=event['title'], date=event['date']):
                         # If it doesn't already exist, save it to the db and add to the list of updated shows
-                        db_show = Result(**event).save()
+                        db_show = Results(**event).save()
                         logging.info(f"Saved document ID {db_show.id} for {event['promotion']}, {event['title']}, {event['date']}")
                         updated_shows.append(event['promotion'] + " - " + event['title'])
                     else:
                         # If show is already in the db, update the details
-                        update = Result.objects(title=event['title'], date=event['date']).update(**event, full_result=True)
+                        update = Results.objects(title=event['title'], date=event['date']).update(**event, full_result=True)
                         if update.modified_count > 0:
                             logging.info(f"Updated DB entry for {event['promotion']}, {event['title']}, {event['date']}")
                         else:

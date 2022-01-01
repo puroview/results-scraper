@@ -6,7 +6,7 @@ from mongoengine import (
     Document, StringField, DateTimeField, BooleanField, URLField, ListField, DynamicDocument
 )
 
-class Newsletter(Document):
+class Newsletters(Document):
     url = URLField(required=True, unique=True)
     firstdate = StringField()
     lastdate = StringField()
@@ -15,8 +15,7 @@ class Newsletter(Document):
 
     meta = {
         "indexes": ["url"],
-        "ordering": ["url"],
-        "collection": "newsletters"
+        "ordering": ["url"]
     }
 
 class Promotions(Document):
@@ -25,12 +24,12 @@ class Promotions(Document):
     short_name = StringField()
 
     meta = {
-        "indexes": ["short_name"],
+        "indexes": ["short_name", "cagematch_id"],
         "ordering": ["short_name"],
         "allow_inheritance": True
     }
 
-class Result(Document):
+class Results(Document):
     title = StringField()
     date = StringField()
     location = StringField()
@@ -40,8 +39,7 @@ class Result(Document):
     meta = {
         "indexes": ["date", "title", "promotion"],
         "ordering": ["-date"],
-        "allow_inheritance": True,
-        "collection": "results"
+        "allow_inheritance": True
     }
 
 class Schedule(DynamicDocument):
@@ -57,13 +55,12 @@ class Schedule(DynamicDocument):
         
     }
 
-class User(Document):
+class Users(Document):
     email = StringField(required=True, unique=True)
     receives_newsletter = BooleanField()
     confirmed = BooleanField()
     confirmed_on = DateTimeField()
 
     meta = {
-        "indexes": ["email"],
-        "collection": "users"
+        "indexes": ["email"]
     }

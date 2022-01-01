@@ -16,7 +16,7 @@ from promotions import PromotionsScraper
 # Create handlers
 c_handler = logging.StreamHandler()
 f_handler = logging.FileHandler('scraper.log')
-c_handler.setLevel(logging.INFO)
+c_handler.setLevel(logging.DEBUG)
 f_handler.setLevel(logging.DEBUG)
 
 # Create formatters and add it to handlers
@@ -32,9 +32,6 @@ logging.basicConfig(
     handlers=[c_handler, f_handler]
     )
 
-# Create pushover notifier
-pushover = Pushover()
-
 ## Parse Arguments
 parser = argparse.ArgumentParser(description="Puroview scraper")
 
@@ -46,6 +43,9 @@ group.add_argument("--schedule", action="store_true", help="Daily schedule scrap
 
 # Parse arguments
 args = parser.parse_args()
+
+# Create pushover notifier
+pushover = Pushover()
 
 # Establish connection to the mongodb cluster
 # http://docs.mongoengine.org/apireference.html?highlight=connect#mongoengine.connect
@@ -68,6 +68,7 @@ if args.results:
 
     # Build a list of the dates for the last 7 days
     date_list = [(datetime.today() - timedelta(days=x)).strftime('%d.%m.%Y') for x in reversed(range(7))]
+    logging.debug(f"date_list: {date_list}")
 
     # Run the event scraper and store the returned string
     updated_events = scraper.update_events(date_list)
