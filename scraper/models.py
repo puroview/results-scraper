@@ -64,3 +64,8 @@ class Users(Document):
     meta = {
         "indexes": ["email"]
     }
+
+class Replacements(Document):
+    category = StringField()
+    original = StringField(unique_with=['category'])
+    replacement = StringField()

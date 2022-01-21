@@ -53,9 +53,9 @@ class ScheduleScraper:
         # Build a string of today's date for finding the relevant elements
         logging.info("Setting today's date")
         # Uncomment to set a specific day, eg for testing
-        #self.today = "2021-12-31"
+        self.today = "2022-01-22"
         # Otherwise use below to pull today's date
-        self.today = date.today().strftime('%Y-%m-%d')
+        #self.today = date.today().strftime('%Y-%m-%d')
         
         logging.info(f"Date: {self.today}")
 
@@ -76,7 +76,7 @@ class ScheduleScraper:
         # Find today's shedule by locating the <script> with today's date in
         # Puwota colours the sections according to type of promotion, so find color01 (puro) and color02 (joshi)
         logging.info("Finding today's schedule")
-        shows = soup.find('script', string=re.compile(self.today)).find_next("ul").find_all("li", ["color01", "color02"])
+        shows = soup.find('script', string=re.compile(self.today)).find_next("ul").find_all("div", ["color01", "color02"])
         logging.debug(f"Schedule source data: {shows}")
 
         # Build the empty show_list for the dictionaries to be stored in
@@ -91,7 +91,7 @@ class ScheduleScraper:
             
             # Show time, location etc is hyperlinked in the next li element down from "show"
             # Example: <a href="https://www.njpw.co.jp/schedule" rel="nofollow" target="_blank">18:00 Hokkaido<br/>Makomanai Sekisui Heim Ice Arena</a>
-            show_info = show.find_next("li").find("a")
+            show_info = show.find_next("div").find("a")
             logging.debug(f"show_info: {show_info}")
 
             # Build a list from the text found in the hyperlink
@@ -174,7 +174,7 @@ class ScheduleScraper:
             List of shows with formatted and standardised text
         """        
         logging.info("Cleaning up formatting of show text")
-        logging.debug(f"Raw show_list: {show_list}")
+        logging.debug(f"show_list: {show_list}")
 
         # For each show in the list, there are some common replacements due to formatting on puwota that isn't common in english speaking usage
         for show in show_list:
