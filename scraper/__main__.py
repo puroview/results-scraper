@@ -78,7 +78,7 @@ if args.results:
 
     # Send message based on whether updated_events contains any entries
     if updated_events:
-        pushover.push_message('Results craper complete, added shows:\n' + updated_events)
+        pushover.push_message('Results Scraper complete, added shows:\n' + updated_events)
     else:
         pushover.push_message('Results Scraper complete, no shows added.')
 

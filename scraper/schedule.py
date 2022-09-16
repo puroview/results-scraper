@@ -53,9 +53,9 @@ class ScheduleScraper:
         # Build a string of today's date for finding the relevant elements
         logging.info("Setting today's date")
         # Uncomment to set a specific day, eg for testing
-        self.today = "2022-01-22"
+        #self.today = "2022-01-22"
         # Otherwise use below to pull today's date
-        #self.today = date.today().strftime('%Y-%m-%d')
+        self.today = date.today().strftime('%Y-%m-%d')
         
         logging.info(f"Date: {self.today}")
 
